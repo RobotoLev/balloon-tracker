@@ -15,7 +15,7 @@ class Contest(models.Model):
         CODEFORCES = 2, _("Codeforces")
 
     external_id = models.IntegerField(
-        verbose_name="Внешний ID контеста"
+        verbose_name="Внешний ID контеста",
     )
     test_system = models.IntegerField(
         choices=TestSystem.choices,
@@ -24,6 +24,11 @@ class Contest(models.Model):
     api_key = models.CharField(
         max_length=250,
         verbose_name="API-ключ для доступа к соревнованию",
+    )
+    api_secret = models.CharField(
+        max_length=250,
+        blank=True,
+        verbose_name="API-секрет, если требуется",
     )
 
     class Meta:
