@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from requests import get
 import time
-from random import randint
+from random import choices
 from hashlib import sha512
+from string import ascii_letters
 from pprint import pprint  # TODO: remove when won't be used
 
 from .models import Contest, Submission
@@ -39,13 +40,13 @@ class CodeforcesAPI(BasicApi):
         self.api_url = "https://codeforces.com/api/"
 
     def query_api(self, method: str, **params) -> dict:
-
         params['lang'] = 'ru'
         params['apiKey'] = self.contest.api_key
         params['time'] = int(time.time())
-        random_signature_prefix = ''.join([str(randint(0, 9)) for _ in range(6)])
+        random_signature_prefix = ''.join(choices(ascii_letters, k=6))
         query_str = f'{random_signature_prefix}/{method}?'
-        query_str += '&'.join([f'{param}={value}' for param, value in sorted(list(params.items()))])
+        query_str += '&'.join([f'{param}={value}' for param, value in
+                               sorted(list(map(lambda pair: (str(pair[0]), str(pair[1])), params.items())))])
         query_str += f'#{self.contest.api_secret}'
         params['apiSig'] = random_signature_prefix + sha512(query_str.encode()).hexdigest()
 
