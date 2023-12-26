@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from requests import get
+from requests import request
 import time
 from random import choices
 from hashlib import sha512
@@ -14,7 +14,7 @@ class BasicApi(ABC):
         self.contest = contest
 
     @abstractmethod
-    def query_api(self, method: str, **params):
+    def query_api(self, api_method: str, http_method: str, **params):
         pass
 
     # @abstractmethod
@@ -25,13 +25,28 @@ class BasicApi(ABC):
 class YandexContestAPI(BasicApi):
     def __init__(self, contest: Contest):
         super().__init__(contest)
-        self.api_url = ""  # TODO
+        self.api_url = "https://api.contest.yandex.net/api/public/v2/"
 
-    def query_api(self, method: str, **params):
-        pass
+    def query_api(self, api_method: str, http_method: str, **params):
+        response = request(
+            method=http_method,
+            url=self.api_url + api_method,
+            headers={'Authorization': f'OAuth {self.contest.api_key}'},
+            params=params
+        )
+        if response.status_code != 200:  # TODO: tune for YandexContest behavior
+            time.sleep(2)  # TODO: more adequate error handling!!!
+            return self.query_api(api_method, http_method, **params)
+        return response.json()
 
     def fetch_and_cache_all_submits(self):
-        pass
+        yc_submissions = self.query_api(
+            f'contests/{self.contest.external_id}/submissions',
+            http_method='GET',
+            page=1,
+            pageSize=100000,  # TODO: check that this pageSize works fine
+        )
+        pprint(yc_submissions)
 
 
 class CodeforcesAPI(BasicApi):
@@ -39,12 +54,12 @@ class CodeforcesAPI(BasicApi):
         super().__init__(contest)
         self.api_url = "https://codeforces.com/api/"
 
-    def query_api(self, method: str, **params) -> dict:
+    def query_api(self, api_method: str, http_method: str, **params) -> dict:
         params['lang'] = 'ru'
         params['apiKey'] = self.contest.api_key
         params['time'] = int(time.time())
         random_signature_prefix = ''.join(choices(ascii_letters, k=6))
-        query_str = f'{random_signature_prefix}/{method}?'
+        query_str = f'{random_signature_prefix}/{api_method}?'
         query_str += '&'.join([f'{param}={value}' for param, value in
                                sorted(list(map(lambda pair: (str(pair[0]), str(pair[1])), params.items())))])
         query_str += f'#{self.contest.api_secret}'
@@ -52,17 +67,23 @@ class CodeforcesAPI(BasicApi):
 
         print(query_str)
 
-        response = get(
-            url=self.api_url + method,
-            params=params
+        response = request(
+            method=http_method,
+            url=self.api_url + api_method,
+            params=params,
         )
         if response.status_code != 200 or response.json()['status'] != 'OK':
-            time.sleep(2) # TODO: more adequate error handling!!!
-            self.query_api(method, **params)
+            time.sleep(2)  # TODO: more adequate error handling!!!
+            return self.query_api(api_method, http_method, **params)
         return response.json()['result']
 
     def fetch_and_cache_all_submits(self):
-        cf_submissions = self.query_api('contest.status', contestId=self.contest.external_id, asManager=True)
+        cf_submissions = self.query_api(
+            'contest.status',
+            http_method='GET',
+            contestId=self.contest.external_id,
+            asManager=True,
+        )
         # pprint(cf_submissions)
 
         for cf_sub in cf_submissions:
