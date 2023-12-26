@@ -34,8 +34,8 @@ class YandexContestAPI(BasicApi):
             headers={'Authorization': f'OAuth {self.contest.api_key}'},
             params=params
         )
-        if response.status_code != 200:  # TODO: tune for YandexContest behavior
-            time.sleep(2)  # TODO: more adequate error handling!!!
+        if response.status_code != 200:  # FIXME: tune for YandexContest behavior
+            time.sleep(2)  # FIXME: more adequate error handling!!!
             return self.query_api(api_method, http_method, **params)
         return response.json()
 
@@ -47,6 +47,29 @@ class YandexContestAPI(BasicApi):
             pageSize=100000,  # TODO: check that this pageSize works fine
         )
         pprint(yc_submissions)
+
+        for yc_sub in yc_submissions['submissions']:
+            if 'timeFromStart' not in yc_sub:
+                continue
+            # FIXME: develop normal validation for non-real participants (managers, virtuals, etc)
+            # TODO: check when timeFromStart would be missing
+
+            try:
+                db_sub = Submission.objects.get(contest=self.contest, external_id=yc_sub['id'])
+            except Submission.DoesNotExist:
+                db_sub = Submission()
+
+            db_sub.external_id = yc_sub['id']
+            db_sub.contest = self.contest
+            db_sub.author = yc_sub['author']
+            db_sub.time_from_start = yc_sub['timeFromStart'] // 1000
+            if yc_sub['verdict'] == 'TESTING':  # TODO: check this exact keyword!!!
+                db_sub.verdict = Submission.Verdict.TESTING
+            elif yc_sub['verdict'] == 'OK':
+                db_sub.verdict = Submission.Verdict.OK
+            else:
+                db_sub.verdict = Submission.Verdict.OTHER
+            db_sub.save()
 
 
 class CodeforcesAPI(BasicApi):
@@ -73,7 +96,7 @@ class CodeforcesAPI(BasicApi):
             params=params,
         )
         if response.status_code != 200 or response.json()['status'] != 'OK':
-            time.sleep(2)  # TODO: more adequate error handling!!!
+            time.sleep(2)  # FIXME: more adequate error handling!!!
             return self.query_api(api_method, http_method, **params)
         return response.json()['result']
 
