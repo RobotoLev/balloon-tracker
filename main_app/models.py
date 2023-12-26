@@ -9,6 +9,9 @@ class User(AbstractUser):
     pass
 
 
+# TODO: pretty tables in admin for Contest and Submission
+
+
 class Contest(models.Model):
     class TestSystem(models.IntegerChoices):
         YANDEX_CONTEST = 1, _("Яндекс.Контест")
@@ -30,6 +33,13 @@ class Contest(models.Model):
         blank=True,
         verbose_name="API-секрет, если требуется",
     )
+
+    @property
+    def test_system_label(self):
+        return self.TestSystem(self.test_system).label
+
+    def __str__(self):
+        return f"{self.test_system_label} {self.external_id}"
 
     class Meta:
         verbose_name = "контест"
@@ -63,6 +73,9 @@ class Submission(models.Model):
         choices=Verdict.choices,
         verbose_name="Вердикт посылки",
     )
+
+    def __str__(self):
+        return f"{self.contest.test_system_label} {self.contest.external_id} | {self.external_id}"
 
     class Meta:
         verbose_name = "посылка"

@@ -62,4 +62,27 @@ class CodeforcesAPI(BasicApi):
         return response.json()['result']
 
     def fetch_and_cache_all_submits(self):
-        pprint(self.query_api('contest.status', contestId=self.contest.external_id, asManager=True))  # TODO: add saving
+        cf_submissions = self.query_api('contest.status', contestId=self.contest.external_id, asManager=True)
+        # pprint(cf_submissions)
+
+        for cf_sub in cf_submissions:
+            if cf_sub['author']['participantType'] != 'CONTESTANT':
+                continue
+            try:
+                db_sub = Submission.objects.get(contest=self.contest, external_id=cf_sub['id'])
+            except Submission.DoesNotExist:
+                db_sub = Submission()
+
+            db_sub.external_id = cf_sub['id']
+            db_sub.contest = self.contest
+            db_sub.author = cf_sub['author'].get('teamName', cf_sub['author']['members'][0]['handle'])
+            db_sub.time_from_start = cf_sub['relativeTimeSeconds']
+            if cf_sub['verdict'] == "TESTING":
+                db_sub.verdict = Submission.Verdict.TESTING
+            elif cf_sub['verdict'] == "OK":
+                db_sub.verdict = Submission.Verdict.OK
+            else:
+                db_sub.verdict = Submission.Verdict.OTHER
+            db_sub.save()
+
+            print(db_sub)
