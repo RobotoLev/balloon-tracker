@@ -1,0 +1,17 @@
+{% extends "site_base.html" %}
+
+{% block head_title %}
+    Главная
+{% endblock %}
+
+{% block content %}
+    <p></p>
+
+    <p>Тут будет рабочее пространство волонтёра. Пока тут просто список его ордеров.</p>
+
+    {% for order in orders %}
+        <p>{{ order }}</p>
+    {% endfor %}
+
+    <p></p>
+{% endblock %}
