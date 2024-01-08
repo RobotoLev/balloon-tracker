@@ -6,7 +6,7 @@ from hashlib import sha512
 from string import ascii_letters
 from pprint import pprint  # TODO: remove when won't be used
 
-from .models import Contest, Submission
+from .models import Contest, Submission, Order
 
 
 class BasicApi(ABC):
@@ -17,9 +17,23 @@ class BasicApi(ABC):
     def query_api(self, api_method: str, http_method: str, **params):
         pass
 
-    # @abstractmethod
     def fetch_and_cache_all_submits(self):
         pass
+
+    def make_new_orders(self):
+        submissions = Submission.objects.filter(
+            contest=self.contest,
+            verdict=Submission.Verdict.OK
+        ).order_by('time_from_start')
+        for submission in submissions:
+            if Order.objects.filter(submission__author=submission.author,
+                                    submission__problem_index=submission.problem_index).count() > 0:
+                continue
+            Order.create_order_for_submission(submission)
+
+    def process_all_submits(self):
+        self.fetch_and_cache_all_submits()
+        self.make_new_orders()
 
 
 class YandexContestAPI(BasicApi):
@@ -61,6 +75,7 @@ class YandexContestAPI(BasicApi):
 
             db_sub.external_id = yc_sub['id']
             db_sub.contest = self.contest
+            db_sub.problem_index = yc_sub['problemAlias']
             db_sub.author = yc_sub['author']
             db_sub.time_from_start = yc_sub['timeFromStart'] // 1000
             if yc_sub['verdict'] == 'TESTING':  # TODO: check this exact keyword!!!
@@ -119,6 +134,7 @@ class CodeforcesAPI(BasicApi):
 
             db_sub.external_id = cf_sub['id']
             db_sub.contest = self.contest
+            db_sub.problem_index = cf_sub['problem']['index']
             db_sub.author = cf_sub['author'].get('teamName', cf_sub['author']['members'][0]['handle'])
             db_sub.time_from_start = cf_sub['relativeTimeSeconds']
             if cf_sub['verdict'] == "TESTING":
