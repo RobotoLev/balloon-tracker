@@ -7,4 +7,5 @@ urlpatterns = [
     path('test/yc/<int:contest_id>', views.test_yandex_contest),
     path('', views.index),
     path('profile/', views.volunteer_profile, name="volunteer_profile"),
+    path('order-done/<int:order_id>', views.order_done, name="order_done"),
 ]
