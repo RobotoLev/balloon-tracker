@@ -17,6 +17,7 @@ class BasicApi(ABC):
     def query_api(self, api_method: str, http_method: str, **params):
         pass
 
+    @abstractmethod
     def fetch_and_cache_all_submits(self):
         pass
 
@@ -113,6 +114,7 @@ class CodeforcesAPI(BasicApi):
         if response.status_code != 200 or response.json()['status'] != 'OK':
             time.sleep(2)  # FIXME: more adequate error handling!!!
             return self.query_api(api_method, http_method, **params)
+        pprint(response.json())
         return response.json()['result']
 
     def fetch_and_cache_all_submits(self):
