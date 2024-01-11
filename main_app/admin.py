@@ -6,7 +6,12 @@ from . import models
 # Register your models here.
 
 
-# TODO: orderings?
+"""
+Description for the code below.
+* `list_display` stands for the list of fields to show in the table
+* `fieldsets` stands for the internal page markup of an entry 
+More detailed information can be found in Django documentation.
+"""
 
 
 class UserAdmin(DjangoUserAdmin):
