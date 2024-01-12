@@ -211,7 +211,6 @@ class Order(models.Model):
         volunteers = User.objects.filter(
             rooms_layout__regex=rf'(?:^|[\n\r\u2028\u2029]){order.room}(?:$|[\n\r\u2028\u2029])',
         ).annotate(num_orders=models.Count('order')).order_by('num_orders')
-        # FIXME: может, тут ^^^ всё же не по общему количеству ордеров, а по количеству открытых?
         if volunteers.count() == 0:
             order.volunteer = submission.contest.admin  # No volunteer found, falling back to admin
         else:

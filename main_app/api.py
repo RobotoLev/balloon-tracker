@@ -57,8 +57,8 @@ class YandexContestAPI(BasicApi):
             headers={'Authorization': f'OAuth {self.contest.api_key}'},
             params=params
         )
-        if response.status_code != 200:  # FIXME: tune for YandexContest behavior
-            time.sleep(2)  # FIXME: more adequate error handling!!!
+        if response.status_code != 200:
+            time.sleep(2)
             return self.query_api(api_method, http_method, **params)
         return response.json()
 
@@ -67,13 +67,12 @@ class YandexContestAPI(BasicApi):
             f'contests/{self.contest.external_id}/submissions',
             http_method='GET',
             page=1,
-            pageSize=100000,  # TODO: check that this pageSize works fine
+            pageSize=100000,
         )
 
         for yc_sub in yc_submissions['submissions']:
             if 'timeFromStart' not in yc_sub:
                 continue
-            # TODO: check when timeFromStart would be missing
 
             try:
                 db_sub = Submission.objects.get(contest=self.contest, external_id=yc_sub['id'])
@@ -120,7 +119,7 @@ class CodeforcesAPI(BasicApi):
             params=params,
         )
         if response.status_code != 200 or response.json()['status'] != 'OK':
-            time.sleep(2)  # FIXME: more adequate error handling!!!
+            time.sleep(2)
             return self.query_api(api_method, http_method, **params)
         return response.json()['result']
 
