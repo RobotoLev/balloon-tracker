@@ -2,12 +2,15 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
-from .models import Contest, Order
+from .models import Order
 
 # Create your views here.
 
 
 def order_done(request, order_id: int):
+    """
+    Handles the internal API (closes an order if no access violation)
+    """
     if request.method == 'POST':
         volunteer = request.user
         order = Order.objects.get(id=order_id)
@@ -18,6 +21,9 @@ def order_done(request, order_id: int):
 
 
 def index(request):
+    """
+    Handles the main page
+    """
     orders = Order.objects.all()
     orders_groups = dict()
     for order in orders:
@@ -40,6 +46,9 @@ def index(request):
 
 @login_required
 def volunteer_profile(request):
+    """
+    Handles volunteer's working profile
+    """
     volunteer = request.user
 
     return render(request, 'profile.html', context={

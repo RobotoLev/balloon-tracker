@@ -1,11 +1,13 @@
+// Invoked when the page is loaded
 $(document).ready(function() {
+    // Listen for clicks on elements with the `order-done` CSS class
     $('.order-done').bind('click', function(){
         if (confirm('Вы уверены, что шарик доставлен?')) {
             order_id = $(this).data("order");
             if (order_id > 0) {
-                var csrftoken = getCookie('csrftoken');
+                var csrftoken = getCookie('csrftoken');  // Required for security reasons
 
-                $.ajax({
+                $.ajax({  // Background request
                     url: '/order-done/' + order_id,
                     method: 'POST',
                     dataType: 'html',
@@ -18,6 +20,7 @@ $(document).ready(function() {
         }
     });
 
+    // Extract any owned cookie
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {

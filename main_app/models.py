@@ -10,6 +10,10 @@ from .validators import validate_color_layout, validate_team_layout
 
 
 class User(AbstractUser):
+    """
+    Extension of a stock Django user model.
+    It allows storing additional user info without using any ForeignKey.
+    """
     rooms_layout = models.TextField(
         blank=True,
         verbose_name='Коды комнат для работы',
@@ -18,7 +22,13 @@ class User(AbstractUser):
 
 
 class Contest(models.Model):
+    """
+    A model to store information about ongoing contests.
+    """
     class TestSystem(models.IntegerChoices):
+        """
+        Enum made to make test system info storing more readable.
+        """
         YANDEX_CONTEST = 1, _("Яндекс.Контест")
         CODEFORCES = 2, _("Codeforces")
 
@@ -62,6 +72,9 @@ class Contest(models.Model):
 
     @property
     def test_system_label(self):
+        """
+        A simple shortcut to retrieve enum label easily.
+        """
         return self.TestSystem(self.test_system).label
 
     def __str__(self):
@@ -73,7 +86,13 @@ class Contest(models.Model):
 
 
 class Submission(models.Model):
+    """
+    A model to cache information about all actual participants' submissions.
+    """
     class Verdict(models.IntegerChoices):
+        """
+        Enum made to make verdict info storing more readable.
+        """
         TESTING = 1, _("Тестируется")
         OK = 2, _("Полное решение")
         OTHER = 3, _("Иной вердикт")
@@ -114,6 +133,9 @@ class Submission(models.Model):
 
 
 class Order(models.Model):
+    """
+    A model to store information about all actual balloon delivery orders.
+    """
     submission = models.OneToOneField(
         'Submission',
         on_delete=models.PROTECT,
@@ -158,6 +180,9 @@ class Order(models.Model):
 
     @classmethod
     def create_order_for_submission(cls, submission: Submission):
+        """
+        A function to construct an order by a submission. Handles corner-cases.
+        """
         order = Order(submission=submission)
         author = submission.author
 
@@ -186,7 +211,6 @@ class Order(models.Model):
         volunteers = User.objects.filter(
             rooms_layout__regex=rf'(?:^|[\n\r\u2028\u2029]){order.room}(?:$|[\n\r\u2028\u2029])',
         ).annotate(num_orders=models.Count('order')).order_by('num_orders')
-        # FIXME: может, тут ^^^ всё же не по общему количеству ордеров, а по количеству открытых?
         if volunteers.count() == 0:
             order.volunteer = submission.contest.admin  # No volunteer found, falling back to admin
         else:
