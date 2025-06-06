@@ -1,4 +1,4 @@
-Django==4.2.21
+Django==4.2.22
 python-dotenv==1.0.0
 requests==2.32.0
 schedule==1.2.1
