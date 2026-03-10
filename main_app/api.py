@@ -82,7 +82,7 @@ class YandexContestAPI(BasicApi):
             db_sub.external_id = yc_sub['id']
             db_sub.contest = self.contest
             db_sub.problem_index = yc_sub['problemAlias']
-            db_sub.author = yc_sub['author']
+            db_sub.author = yc_sub['authorId']
             db_sub.time_from_start = yc_sub['timeFromStart'] // 1000
             if yc_sub['verdict'] == '':
                 db_sub.verdict = Submission.Verdict.TESTING
