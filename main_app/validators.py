@@ -19,5 +19,5 @@ def validate_team_layout(value: str) -> str:
     for line in value.splitlines():
         if not re.fullmatch(r'^[\w=]+:\w+:\w+:.+$', line):
             raise ValidationError(f'Строка "{line}" не соответствует формату '
-                                  f'"ИдентификаторКоманды:ПомещениеКоманды:НомерМестаКоманды:НазваниеКоманды"')
+                                  f'"IdКоманды:ПомещениеКоманды:НомерМестаКоманды:НазваниеКоманды"')
     return value

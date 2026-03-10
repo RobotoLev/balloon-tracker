@@ -59,7 +59,7 @@ class Contest(models.Model):
         blank=False,
         validators=[validate_team_layout],
         verbose_name="Распределение команд по местам",
-        help_text='В формате "ЛогинКоманды:ПомещениеКоманды:НомерМестаКоманды:НазваниеКоманды", '
+        help_text='В формате "IdКоманды:ПомещениеКоманды:НомерМестаКоманды:НазваниеКоманды", '
                   'по одной записи в строке',
     )
     admin = models.ForeignKey(
