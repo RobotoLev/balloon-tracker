@@ -45,8 +45,13 @@ container {
 }
 
 .balloon {
+    box-shadow: none !important;
     display: inline-block;
     border-radius: 50%;
     width: 30px!important;
     height: 30px!important;
+}
+
+.table-striped > tbody > tr > td.colored-cell {
+    box-shadow: none !important;
 }

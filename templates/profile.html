@@ -23,7 +23,7 @@
     </tr>
         {% for order in orders %}
             <tr>
-                <td style="min-width: 20px; background-color: {{ order.balloon_color }}">&nbsp;</td>
+                <td class="colored-cell" style="min-width: 20px; background-color: {{ order.balloon_color }}">&nbsp;</td>
                 <td>{{ order.room }}</td>
                 <td>{{ order.place }}</td>
                 <td>{{ order.author_name }}</td>
