@@ -102,7 +102,7 @@ class Submission(models.Model):
     )
     contest = models.ForeignKey(
         'Contest',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name='submissions',
         related_query_name='submission',
         verbose_name='Контест',
@@ -138,7 +138,7 @@ class Order(models.Model):
     """
     submission = models.OneToOneField(
         'Submission',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name='order',
         related_query_name='order',
         verbose_name='Посылка',
