@@ -20,6 +20,7 @@ def order_done(request, order_id: int):
             return HttpResponse("ok")
 
 
+@login_required
 def index(request):
     """
     Handles the main page
