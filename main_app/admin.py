@@ -25,6 +25,8 @@ class UserAdmin(DjangoUserAdmin):
 
 admin.site.register(models.User, UserAdmin)
 
+admin.site.site_header = "Balloon Tracker"
+
 
 @admin.register(models.Contest)
 class ContestAdmin(admin.ModelAdmin):
